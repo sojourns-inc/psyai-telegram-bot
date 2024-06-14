@@ -27,7 +27,7 @@ func GetenvVar(key string, isEnvVarBase64 bool) string {
 	return string(decodedValue)
 }
 
-func removeMention(text string, entities []tgbotapi.MessageEntity) string {
+func DeleteMention(text string, entities []tgbotapi.MessageEntity) string {
 	for _, entity := range entities {
 		if entity.Type == "mention" {
 			return text[:entity.Offset] + text[entity.Offset+entity.Length:]
@@ -36,7 +36,7 @@ func removeMention(text string, entities []tgbotapi.MessageEntity) string {
 	return text
 }
 
-func convertToTelegramHTML(text string) string {
+func ConvertToTelegramHTML(text string) string {
 	replacements := map[string]string{
 		`## (.*)`:                            "<b>$1</b>",
 		`\*\*(.*?)\*\*`:                      "<b>$1</b>",
@@ -67,7 +67,7 @@ func convertToTelegramHTML(text string) string {
 	return text
 }
 
-func makeAPIRequest(apiURL string, params map[string]interface{}) (map[string]interface{}, error) {
+func Api(apiURL string, params map[string]interface{}) (map[string]interface{}, error) {
 	jsonBody, err := json.Marshal(params)
 	if err != nil {
 		return nil, fmt.Errorf("error marshaling request body: %w", err)
@@ -138,20 +138,20 @@ func handleAskCommand(bot *tgbotapi.BotAPI, update tgbotapi.Update, question str
 	}
 
 	apiURL := GetenvVar("BASE_URL_BETA", false) + "/prompt?model=openai"
-	question = removeMention(question, update.Message.Entities)
+	question = DeleteMention(question, update.Message.Entities)
 	requestBody := map[string]interface{}{
 		"question":    question,
 		"temperature": 0.25,
 		"tokens":      1000,
 	}
 
-	apiResponse, err := makeAPIRequest(apiURL, requestBody)
+	apiResponse, err := Api(apiURL, requestBody)
 	if err != nil {
 		return err
 	}
 
 	answer, ok := apiResponse["assistant"].(string)
-	answer = convertToTelegramHTML(answer)
+	answer = ConvertToTelegramHTML(answer)
 	if !ok {
 		return fmt.Errorf("unexpected API response format")
 	}
