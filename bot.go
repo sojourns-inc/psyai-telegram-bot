@@ -95,7 +95,7 @@ func Api(apiURL string, params map[string]interface{}) (map[string]interface{}, 
 	return apiResponse, nil
 }
 
-func handleStartCommand(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
+func HandleStartCommand(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
 	START_TEXT := GetenvVar("START_TEXT", true)
 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, START_TEXT)
 	msg.ParseMode = tgbotapi.ModeMarkdown
@@ -103,7 +103,7 @@ func handleStartCommand(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
 	return err
 }
 
-func handleInfoCommand(bot *tgbotapi.BotAPI, update tgbotapi.Update, drugName string) error {
+func HandleInfoCommand(bot *tgbotapi.BotAPI, update tgbotapi.Update, drugName string) error {
 	info_text := drugName
 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, info_text)
 	msg.ParseMode = tgbotapi.ModeHTML
@@ -111,7 +111,7 @@ func handleInfoCommand(bot *tgbotapi.BotAPI, update tgbotapi.Update, drugName st
 	return err
 }
 
-func handleAskCommand(bot *tgbotapi.BotAPI, update tgbotapi.Update, question string) error {
+func HandleAskCommand(bot *tgbotapi.BotAPI, update tgbotapi.Update, question string) error {
 	// Group context and direct mention
 	if update.Message.Chat.IsGroup() {
 		mentioned := false
@@ -194,14 +194,14 @@ func main() {
 
 		switch update.Message.Command() {
 		case "start":
-			err = handleStartCommand(bot, update)
+			err = HandleStartCommand(bot, update)
 		case "info":
 			drugName := update.Message.CommandArguments()
 			log.Print(drugName)
-			err = handleInfoCommand(bot, update, drugName)
+			err = HandleInfoCommand(bot, update, drugName)
 		default:
 			question := update.Message.Text
-			err = handleAskCommand(bot, update, question)
+			err = HandleAskCommand(bot, update, question)
 		}
 
 		if err != nil {
