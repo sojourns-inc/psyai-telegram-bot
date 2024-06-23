@@ -130,14 +130,14 @@ func HandleAskCommand(bot *tgbotapi.BotAPI, update tgbotapi.Update, question str
 	bot.Send(tgbotapi.NewChatAction(update.Message.Chat.ID, tgbotapi.ChatTyping))
 
 	// Send "Thinking..." message
-	thinkingMsg := tgbotapi.NewMessage(update.Message.Chat.ID, "PsyAI is thinking...")
+	thinkingMsg := tgbotapi.NewMessage(update.Message.Chat.ID, ThinkingMessage)
 	thinkingMsg.ReplyToMessageID = update.Message.MessageID // Reply to the original message
 	thinkingMsgSent, err := bot.Send(thinkingMsg)
 	if err != nil {
 		return err
 	}
 
-	apiURL := GetenvVar("BASE_URL_BETA", false) + "/prompt?model=openai"
+	apiURL := GetenvVar("BASE_URL_BETA", false) + ApiPromptEndpoint
 	question = DeleteMention(question, update.Message.Entities)
 	requestBody := map[string]interface{}{
 		"question":    question,
