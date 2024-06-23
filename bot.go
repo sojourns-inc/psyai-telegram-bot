@@ -113,16 +113,16 @@ func HandleInfoCommand(bot *tgbotapi.BotAPI, update tgbotapi.Update, drugName st
 
 func HandleAskCommand(bot *tgbotapi.BotAPI, update tgbotapi.Update, question string) error {
 	// Group context and direct mention
-	if update.Message.Chat.IsGroup() {
-		mentioned := false
-		for _, entity := range update.Message.Entities {
-			if entity.Type == "mention" && entity.User.UserName == "doseslog_bot" {
-				mentioned = true
-				break
-			}
-		}
+	if update.Message.Chat.IsGroup() || update.Message.Chat.IsSuperGroup() {
+		botUsername := bot.Self.UserName
+		botMention := "@" + strings.ToLower(botUsername) // Make it lowercase for comparison
+
+		// Check if the message text contains the bot's mention
+		mentioned := strings.Contains(strings.ToLower(update.Message.Text), botMention)
+
 		if !mentioned {
-			return nil // Exit if not mentioned in a group with an @mention
+			// Exit if the message is in a group and does not contain the bot's mention
+			return nil
 		}
 	}
 
